@@ -4,6 +4,7 @@ import numpy as np
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 import re
+import csv
 
 # Example data (replace with your actual data)
 # diningHistory = [
@@ -17,16 +18,22 @@ import re
 #     # ...
 # ]
 
-# diningHistory=input("Enter food you've ate recentely or that you like: ")
 
 diningHistory=[]
+
+print("---------------------------------------\nWelcome to FlavorFusion!!\n---------------------------------------")
+# print("How many people will you be dining with? ")
+# num_users = input()
+
 print("Enter 5 food you've ate recentely or that you like: ") 
 for i in range(0,5):
     diningHistory.append(input())
 
+
 # Tokenize and preprocess the data
 # tokenized_corpus = [word_tokenize(sentence.lower()) for sentence in diningHistory]
 tokenized_corpus = [sentence.lower().split() for sentence in diningHistory]
+
 
 # Train Word2Vec model
 model = Word2Vec(sentences=tokenized_corpus, vector_size=100, window=5, min_count=1, workers=4)
@@ -57,8 +64,19 @@ def create_user_profile(user_reviews, model):
 user_profile = create_user_profile(diningHistory, model)
 
 # Compare user profile with different food types
-food_types = ["pizza", "sushi", "burger", "pasta", "salad", "ice_cream","oatmeal"]
+# food_types = ["pizza", "sushi", "burger", "pasta", "salad", "ice_cream","oatmeal"]
 
+### Puts all food items into array 
+food_types = []
+# reads all csv file that contains 426,740 types of food 
+with open('dish.csv', 'r', encoding="utf-8") as file:
+    reader = csv.reader(file)
+    next(reader)  # Skip the header
+    food_types = [row[1] for row in reader]  # Indexing starts at 0
+
+        
+
+#print(food_type[2])
 # Compare user profile with different food types
 similarities = []
 
@@ -68,6 +86,10 @@ for food in food_types:
     else:
         similarity = 0
     similarities.append(similarity)
+
+# The outputs of the similarity are parrallel to the food_types
+# Meaning that if you don't list a specific food_types in the dataset it will output 0
+# Issue: It can't draw a sufficient conclusion if you don't list the food item in food_types
 
 recommended_food = food_types[np.argmax(similarities)] #Recommend the food type with the highest cosine similarity
 
