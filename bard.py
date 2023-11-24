@@ -1,14 +1,13 @@
-import google_bard
+from bardapi import Bard
 
-# Replace "YOUR_API_KEY" with the actual API Key obtained earlier
-API_KEY = "AIzaSyBqX_7lAyUaAd_bPWhf2OBo8SB-eJnqzYI"
+# Replace API_KEY with your actual API key
+#API_KEY = "cggGgdKpEjFtDiPxOpUKdP86OMbI9X2_Ufunoho4vXxkXFMxg2WPMjzcaNz_0mDMgIwjHQ."
+#API_KEY = "AIzaSyBqX_7lAyUaAd_bPWhf2OBo8SB-eJnqzYI"
+API_KEY = "AIzaSyBqX_7lAyUaAd_bPWhf2OBo8SB-eJnqzYI."
 
-def main():
-	query = "What is the meaning of life?"
-	response = google_bard.generate_text(query, key=API_KEY)
-	print("Google Bard Response (Using google_bard Module):")
-	print(response)
 
-if __name__ == "__main__":
-	main()
+bard = Bard(token=API_KEY)
 
+input_query = "What is the capital of France?"
+result = bard.retrieve(input_query)
+print(result)
