@@ -3,7 +3,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
-from googlesearch import search
 import re
 import csv
 
@@ -35,7 +34,6 @@ for i in range(0,5):
 # tokenized_corpus = [word_tokenize(sentence.lower()) for sentence in diningHistory]
 tokenized_corpus = [sentence.lower().split() for sentence in diningHistory]
 
-
 # Train Word2Vec model
 model = Word2Vec(sentences=tokenized_corpus, vector_size=100, window=5, min_count=1, workers=4)
 
@@ -65,6 +63,7 @@ def create_user_profile(user_reviews, model):
 user_profile = create_user_profile(diningHistory, model)
 
 # Compare user profile with different food types
+# EXAMPLES: 
 # food_types = ["pizza", "sushi", "burger", "pasta", "salad", "ice_cream","oatmeal"]
 
 ### Puts all food items into array 
@@ -76,8 +75,6 @@ with open('dish.csv', 'r', encoding="utf-8") as file:
     food_types = [row[1] for row in reader]  # Indexing starts at 0
 
         
-
-#print(food_type[2])
 # Compare user profile with different food types
 similarities = []
 
