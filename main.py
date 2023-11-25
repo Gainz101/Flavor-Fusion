@@ -5,6 +5,10 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 import re
 import csv
+import pandas as pd
+from spellchecker import SpellChecker  # Import the SpellChecker
+
+
 
 # Example data (replace with your actual data)
 # diningHistory = [
@@ -33,9 +37,12 @@ for i in range(0,5):
 # Tokenize and preprocess the data
 # tokenized_corpus = [word_tokenize(sentence.lower()) for sentence in diningHistory]
 tokenized_corpus = [sentence.lower().split() for sentence in diningHistory]
+spell = SpellChecker()
+misspelled_words = spell.unknown([word for sentence in tokenized_corpus for word in sentence])
+corrected_corpus = [[spell.correction(word) for word in sentence] for sentence in tokenized_corpus]
 
 # Train Word2Vec model
-model = Word2Vec(sentences=tokenized_corpus, vector_size=100, window=5, min_count=1, workers=4)
+model = Word2Vec(sentences=corrected_corpus, vector_size=100, window=5, min_count=1, workers=4)
 
 IN_embs = model.wv
 OUT_embs = model.syn1neg
@@ -67,12 +74,13 @@ user_profile = create_user_profile(diningHistory, model)
 # food_types = ["pizza", "sushi", "burger", "pasta", "salad", "ice_cream","oatmeal"]
 
 ### Puts all food items into array 
-food_types = []
-# reads all csv file that contains 426,740 types of food 
-with open('dish.csv', 'r', encoding="utf-8") as file:
-    reader = csv.reader(file)
-    next(reader)  # Skip the header
-    food_types = [row[1] for row in reader]  # Indexing starts at 0
+# Load the CSV file
+df = pd.read_csv('dish.csv') 
+
+# Extract food names from the "name" column
+food_types = df['name'].tolist()
+
+
 
         
 # Compare user profile with different food types
