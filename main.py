@@ -80,6 +80,8 @@ df = pd.read_csv('dish.csv')
 # Extract food names from the "name" column
 food_types = df['name'].tolist()
 
+#df = pd.read_csv('all_recipies.csv')
+#food_types = df['recipe_name'].tolist()
 
 
         
