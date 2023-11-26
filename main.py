@@ -7,7 +7,7 @@ import re
 import csv
 import pandas as pd
 from spellchecker import SpellChecker  # Import the SpellChecker
-
+# ^ pip install pyspellchecker
 
 
 # Example data (replace with your actual data)
