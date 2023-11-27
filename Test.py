@@ -1,5 +1,6 @@
 from gensim.models.doc2vec import Doc2Vec,\
 TaggedDocument
+from bardapi import Bard
 
 import nltk
 from nltk.corpus import stopwords
@@ -84,3 +85,28 @@ data = ["This is the first document",
 #     print("Document", i+1, ":", doc)
 #     print("Vector:", document_vectors[i])
 #     print()
+
+
+
+#Bard - Searching for restaurants nearby 
+'''
+# Replace API_KEY with your actual API key
+API_KEY = "dQjTcZCzYfXtNEZCvwPVpWvIFkmCZvtyFF_jsoi0R45nP54lYKKJVLKMvtonqYLhzhD0Rg."
+
+bard = Bard(token=API_KEY)
+
+result = bard.get_answer("Give me 5 food places around me related to " + recommended_dish)
+
+# Parse the content field
+content = result['content']
+
+# Split the content into lines
+lines = content.split('\n')
+
+# Filter out the lines that start with '*'
+food_places = [line for line in lines if line.startswith('*')]
+
+# Print the food places
+for place in food_places:
+    print(place)
+'''

@@ -1,14 +1,12 @@
 from gensim.models import Word2Vec
+import nltk
+import json
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 import re
 import csv
-import pandas as pd
-from spellchecker import SpellChecker  # Import the SpellChecker
-# ^ pip install pyspellchecker
-
 
 # Example data (replace with your actual data)
 # diningHistory = [
@@ -33,22 +31,20 @@ print("Enter 5 food you've ate recentely or that you like: ")
 for i in range(0,5):
     diningHistory.append(input())
 
-
 # Tokenize and preprocess the data
 # tokenized_corpus = [word_tokenize(sentence.lower()) for sentence in diningHistory]
 tokenized_corpus = [sentence.lower().split() for sentence in diningHistory]
-spell = SpellChecker()
-misspelled_words = spell.unknown([word for sentence in tokenized_corpus for word in sentence])
-corrected_corpus = [[spell.correction(word) for word in sentence] for sentence in tokenized_corpus]
 
 # Train Word2Vec model
-model = Word2Vec(sentences=corrected_corpus, vector_size=100, window=5, min_count=1, workers=4)
+model = Word2Vec(sentences=tokenized_corpus, vector_size=100, window=5, min_count=1, workers=4)
 
 IN_embs = model.wv
 OUT_embs = model.syn1neg
 
 ##Data Creation done
 #####################################################################################################################################
+
+
 
 def create_user_profile(user_reviews, model):
     # Convert user reviews to lowercase and tokenize
@@ -59,8 +55,29 @@ def create_user_profile(user_reviews, model):
 
     if not embeddings:
         return np.zeros(model.vector_size)  # Return zero vector if no valid embeddings
+        print("No valid embeddings")
 
     return np.mean(embeddings, axis=0)
+
+
+
+#Parsing food_types to compare with user input words 
+def doc_parser(doc):
+
+    current_tokens = []
+    
+    for i in range(len(doc)):
+        doc[i] = doc[i].lower()
+        current_tokens.append(nltk.word_tokenize(str(doc[i])) )
+
+        
+    for j in range(len(current_tokens)):
+        for k in range(len(current_tokens[j])):
+            lemmatizer = WordNetLemmatizer()
+            current_tokens[j][k] = lemmatizer.lemmatize(current_tokens[j][k])
+
+    return current_tokens 
+
 
 
 # Example user reviews
@@ -74,32 +91,38 @@ user_profile = create_user_profile(diningHistory, model)
 # food_types = ["pizza", "sushi", "burger", "pasta", "salad", "ice_cream","oatmeal"]
 
 ### Puts all food items into array 
-# Load the CSV file
-df = pd.read_csv('dish.csv') 
+food_items = []
+# reads all csv file that contains 426,740 types of food 
+with open('all_recipies.csv', 'r', encoding="utf-8") as file:
+    reader = csv.reader(file)
+    next(reader)  # Skip the header
+    food_items = [row[0] for row in reader]  # Indexing starts at 0
 
-# Extract food names from the "name" column
-food_types = df['name'].tolist()
+food_types = doc_parser(food_items)
 
-#df = pd.read_csv('all_recipies.csv')
-#food_types = df['recipe_name'].tolist()
-
-
-        
 # Compare user profile with different food types
 similarities = []
 
-for food in food_types:
-    if food in IN_embs:
-        similarity = cosine_similarity([user_profile], [IN_embs[food]])[0][0]
-    else:
-        similarity = 0
-    similarities.append(similarity)
+for dishes in food_types:
+    for food in dishes:
+        if food in IN_embs:
+            similarity = cosine_similarity([user_profile], [IN_embs[food]])[0][0]
+        else:
+            similarity = 0
+        similarities.append(similarity)
+
 
 # The outputs of the similarity are parrallel to the food_types
 # Meaning that if you don't list a specific food_types in the dataset it will output 0
 # Issue: It can't draw a sufficient conclusion if you don't list the food item in food_types
 
 recommended_food = food_types[np.argmax(similarities)] #Recommend the food type with the highest cosine similarity
+top6 = []
+for i in range(6):
+    highest = food_types[np.argmax(similarities)]
+    top6.append(highest)
+    food_types.remove(highest)
+print(top6)
 
 # for word in IN_embs.index_to_key:
 #     print(word, IN_embs[word])

@@ -1,11 +1,13 @@
 from bardapi import Bard
+import string
 
 # Replace API_KEY with your actual API key
-API_KEY = "dQjZqQzR9M6HH_KhYMoag7vDze3qTkG_nizXGID8HuRPEU2IqX-bXks9SqlB1DMnzGaudA."
+API_KEY = "dQjTcfYZtcqgCTRLrhOWVUcq4zroAWBj7aflgnjdIHviy15ITBhUI0CTCpDQooD3vL4cNQ."
 
 bard = Bard(token=API_KEY)
 
-result = bard.get_answer("Give me 5 food places around me related to tacos?")
+food = "tacos"
+result = bard.get_answer("Give me 5 food places around me related to "+ food )
 
 # Parse the content field
 content = result['content']
