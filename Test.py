@@ -1,28 +1,16 @@
-from gensim.models.doc2vec import Doc2Vec,\
-TaggedDocument
-
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+from nltk.tokenize import word_tokenize
+import pandas as pd
 import nltk
 from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer
+from gensim.models import Word2Vec
 
-from sklearn.metrics.pairwise import cosine_similarity
-
-import numpy as np
-import re
-import csv
-import pandas as pd
-from spellchecker import SpellChecker  # Import the SpellChecker
-
-# Importants dataset 
+# Import dataset
 df = pd.read_csv('all_recipies.csv')
 
-# Creates 2 seperate 'list' w/ types and decription
+# Create lists of types and descriptions
 food_types = df['recipe_name'].tolist()
 food_decr_raw = df['description'].tolist()
-
-### Need to clean the food decriptions
-## remove stopwords, remove punctuations, convert to lowercase
 
 # Download the stopwords from NLTK
 nltk.download('punkt')
@@ -30,60 +18,40 @@ nltk.download('stopwords')
 
 stop_words = set(stopwords.words('english'))
 
-# function to proccess each decription
-def preproccess(decription):
-    # Tokenize the text
-    tokens = word_tokenize(decription)
-
-    # Remove punctuations
+# Function to process each description
+def preprocess(description):
+    tokens = word_tokenize(description)
     tokens = [word for word in tokens if word.isalnum()]
+    postprocessed_desc = [w.lower() for w in tokens if not w.lower() in stop_words]
+    return " ".join(postprocessed_desc)
 
-    # Convert lowercase and remove stop words
-    postprocess_decr = [w.lower() for w in tokens if not w.lower() in stop_words]
+# Preprocess all food descriptions
+food_decr = [preprocess(desc) for desc in food_decr_raw]
 
-    # remake decription
-    return " ".join(postprocess_decr)
+# Train Word2Vec model
+word2vec_model = Word2Vec(sentences=[word_tokenize(desc) for desc in food_decr], vector_size=50, window=5, min_count=1, workers=4)
 
-# Utilize function above (^) in order to convert all of food decription
-food_decr = []
-for i in range(0, len(food_decr_raw)):
-    proc_decr = preproccess(food_decr_raw[i])
-    food_decr.append(proc_decr)
+# Use Word2Vec embeddings to initialize Doc2Vec model
+tagged_data = [TaggedDocument(words=word_tokenize(doc.lower()), tags=[str(i)]) for i, doc in enumerate(food_decr)]
+doc2vec_model = Doc2Vec(vector_size=50, window=5, min_count=1, workers=4, epochs=100)
+doc2vec_model.build_vocab(tagged_data)
+doc2vec_model.wv = word2vec_model.wv  # Use Word2Vec embeddings
+doc2vec_model.train(tagged_data, total_examples=doc2vec_model.corpus_count, epochs=doc2vec_model.epochs)
 
-print(food_decr_raw[1])
-print()
-print(food_decr[1])
+# Dining history
+dining_history = ["tacos", "nachos", "chicken", "beans", "rice"]
 
+# Get the document vector for the combined dining history
+combined_vector = doc2vec_model.infer_vector(word_tokenize(" ".join(dining_history).lower()))
 
+# Find the most similar food item from the dataset
+similar_documents = doc2vec_model.dv.most_similar([combined_vector], topn=1)
+similar_food_index = int(similar_documents[0][0])
+similar_food = food_types[similar_food_index]
 
-# define a list of documents.
-data = ["This is the first document",
-        "This is the second document",
-        "This is the third document",
-        "This is the fourth document"]
- 
-# preproces the documents, and create TaggedDocuments
-# tagged_data = [TaggedDocument(words=word_tokenize(doc.lower()),
-#                               tags=[str(i)]) for i,
-#                doc in enumerate(data)]
- 
-# # train the Doc2vec model
-# model = Doc2Vec(vector_size=20,
-#                 min_count=2, epochs=50)
-# model.build_vocab(tagged_data)
-# model.train(tagged_data,
-#             total_examples=model.corpus_count,
-#             epochs=model.epochs)
- 
-# # get the document vectors
-# document_vectors = [model.infer_vector(
-#     word_tokenize(doc.lower())) for doc in data]
- 
-# #  print the document vectors
-# for i, doc in enumerate(data):
-#     print("Document", i+1, ":", doc)
-#     print("Vector:", document_vectors[i])
-#     print()
+# Print the most similar food item
+print(f"The most similar food item to the combined dining history is: {similar_food}")
+
 
 
 #Bard - Searching for restaurants nearby 

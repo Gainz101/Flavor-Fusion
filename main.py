@@ -105,6 +105,17 @@ recommended_food = food_types[np.argmax(similarities)] #Recommend the food type 
 #     print(word, IN_embs[word])
 
 
+#     similarities.append(similarity)# Get the indices of the top 100 most similar food items
+# top_indices = np.argsort(similarities)[-100:][::-1]
+
+# # Get the top 100 most similar food items
+# top_foods = df.iloc[top_indices]['name']  # Replace 'food_name_column' with your actual column name
+
+# # Determine the dominant genre or cuisine based on the top 100 foods
+# # ... (your code to identify genre or cuisine based on the food names)
+
+# # Print the results
+# print("Top 100 most similar foods:", top_foods.tolist())
 print("Recommended food type:", recommended_food)
 
 # # Start of Python file
