@@ -39,7 +39,7 @@ doc2vec_model.wv = word2vec_model.wv  # Use Word2Vec embeddings
 doc2vec_model.train(tagged_data, total_examples=doc2vec_model.corpus_count, epochs=doc2vec_model.epochs)
 
 # Dining history
-dining_history = ["tacos", "nachos", "chicken", "beans", "rice"]
+dining_history = ["pizza", "salsa", "sandwich", "lasagna", "sushi"]
 
 # Get the document vector for the combined dining history
 combined_vector = doc2vec_model.infer_vector(word_tokenize(" ".join(dining_history).lower()))
