@@ -21,12 +21,13 @@ df = pd.read_csv('all_recipies.csv')
 food_types = df['recipe_name'].tolist()
 food_decr_raw = df['description'].tolist()
 
+
 ### Need to clean the food decriptions
 ## remove stopwords, remove punctuations, convert to lowercase
 
 # Download the stopwords from NLTK
-nltk.download('punkt')
-nltk.download('stopwords')
+# nltk.download('punkt')
+# nltk.download('stopwords')
 
 stop_words = set(stopwords.words('english'))
 
@@ -48,19 +49,41 @@ def preproccess(decription):
 food_decr = []
 for i in range(0, len(food_decr_raw)):
     proc_decr = preproccess(food_decr_raw[i])
+    # also add the respected food_type to begging of food_decr (adds more emphasis on food_type)
+    proc_decr = str(food_types[i]).lower() + " " + proc_decr
+    
+    # add to list
     food_decr.append(proc_decr)
 
-print(food_decr_raw[1])
-print()
-print(food_decr[1])
+tagged_data = [TaggedDocument(words=word_tokenize(doc.lower()),
+                              tags=[str(i)]) for i,
+               doc in enumerate(food_decr)]
 
+# train the Doc2vec model
+model = Doc2Vec(vector_size=20,
+                min_count=2, epochs=50)
 
+model.build_vocab(tagged_data)
 
-# define a list of documents.
-data = ["This is the first document",
-        "This is the second document",
-        "This is the third document",
-        "This is the fourth document"]
+model.train(tagged_data,
+            total_examples=model.corpus_count,
+            epochs=model.epochs)
+ 
+# get the document vectors
+document_vectors = [model.infer_vector(
+    word_tokenize(doc.lower())) for doc in proc_decr]
+ 
+#  print the document vectors
+for i in range(0, 3):
+    print("Document", food_types[i], ":", proc_decr[i])
+    print("Vector:", document_vectors[i])
+    print()
+
+# # define a list of documents.
+# data = ["This is the first document",
+#         "This is the second document",
+#         "This is the third document",
+#         "This is the fourth document"]
  
 # preproces the documents, and create TaggedDocuments
 # tagged_data = [TaggedDocument(words=word_tokenize(doc.lower()),
