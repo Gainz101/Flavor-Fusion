@@ -1,7 +1,7 @@
 from bardapi import Bard
 
 # Replace API_KEY with your actual API key
-API_KEY = "AIzaSyDGrb8ZtV55BhPq9t35OgBpcTj4bYLHbQ4"
+API_KEY = ""
 
 bard = Bard(token=API_KEY)
 
