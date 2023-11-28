@@ -37,7 +37,7 @@ if __name__ == "__main__":
     api_key = "_kpunRxiPhTA4sySgs432sZPBS9afRrsPNYnMOIC66GSuhuadaPuHZfxWiQiu821pjAWVAgJNJ2OEwZjdkbeuphkLzrWEHvWsDFi_gJN7SC-GOn7t6ffJpdWBmFmZXYx"
 
     
-    search_term = "pizza"
+    search_term = "burger"
     location = "College Station, TX"
 
     
